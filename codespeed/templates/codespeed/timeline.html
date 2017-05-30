@@ -40,6 +40,7 @@
         </li>{% endfor %}
       </ul>
     {% endfor %}
+      <ul></ul><ul></ul>
       <ul>
         <li title="Select baseline">Baseline:<div id="baselinecolor" class="seriescolor"></div><br/>
           <select id="baseline">
@@ -85,6 +86,10 @@
     <input id="equidistant" name="equidistant" type="checkbox" />
     <label for="equidistant">Equidistant</label>
   </span>
+  <span class="options" title="Show results from all branches">
+    <input id="all_branches" name="all_branches" type="checkbox" />
+    <label for="all_branches">Include all branches</label>
+  </span>
   {% if use_median_bands %}
   <span class="options median" title="Shows quartile bands in the plots" style="display: none">
     <input id="show_quartile_bands" type="checkbox" name="show_quartile_bands" checked="checked"/>
@@ -128,6 +133,7 @@
       benchmark: "{{ defaultbenchmark }}",
       environment: {{ defaultenvironment.id }},
       equidistant: "{{ defaultequid }}",
+      all_branches: "{{ default_all_branches }}",
       quartiles: "{{ defaultquarts }}",
       extrema: "{{ defaultextr }}"
     });

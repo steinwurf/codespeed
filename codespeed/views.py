@@ -139,7 +139,7 @@ def comparison(request):
                 #TODO: log
                 pass
     if not checkedexecutables:
-        checkedexecutables = exekeys
+        checkedexecutables = []
 
     units_titles = Benchmark.objects.filter(
         benchmark_type="C"
@@ -270,24 +270,30 @@ def gettimelinedata(request):
             'branches':              {},
             'baseline':              "None",
         }
-        # Temporary
-        trunks = []
-        if Branch.objects.filter(name=settings.DEF_BRANCH):
-            trunks.append(settings.DEF_BRANCH)
-        # For now, we'll only work with trunk branches
+        # This list is fake, the all_branches parameter governs the included
+        # branches. The results from all branches will be stored in
+        # timeline['branches'][DEF_BRANCH]
+        branch_list = [settings.DEF_BRANCH]
+
         append = False
-        for branch in trunks:
+        for branch in branch_list:
             append = False
             timeline['branches'][branch] = {}
             for executable in executables:
-                resultquery = Result.objects.filter(
+                if data.get('all_branches', 'off') == 'on':
+                    # Include data from all branches
+                    resultquery = Result.objects.all()
+                else:
+                    # Only include the default branch
+                    resultquery = Result.objects.filter(
+                        revision__branch__name=settings.DEF_BRANCH)
+
+                resultquery = resultquery.filter(
                     benchmark=bench
                 ).filter(
                     environment=environment
                 ).filter(
                     executable=executable
-                ).filter(
-                    revision__branch__name=branch
                 ).select_related(
                     "revision"
                 ).order_by('-revision__date')[:number_of_revs]
@@ -311,9 +317,10 @@ def gettimelinedata(request):
                             q3 = res.q3
                         results.append(
                             [
-                                res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
+                                res.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, val_max, q3, q1, val_min,
-                                res.revision.get_short_commitid(), res.revision.tag, branch
+                                res.revision.get_short_commitid(),
+                                res.revision.branch.name
                             ]
                         )
                     else:
@@ -322,9 +329,10 @@ def gettimelinedata(request):
                             std_dev = res.std_dev
                         results.append(
                             [
-                                res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
+                                res.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, std_dev,
-                                res.revision.get_short_commitid(), res.revision.tag, branch
+                                res.revision.get_short_commitid(),
+                                res.revision.branch.name
                             ]
                         )
                 timeline['branches'][branch][executable] = results
@@ -453,6 +461,11 @@ def timeline(request):
         defaultequid = data['equid']
     else:
         defaultequid = "off"
+    if 'all_branches' in data:
+        default_all_branches = data['all_branches']
+    else:
+        default_all_branches = "off"
+
     if 'quarts' in data:
         defaultquarts = data['quarts']
     else:
@@ -481,6 +494,7 @@ def timeline(request):
         'branch_list': branch_list,
         'defaultbranch': defaultbranch,
         'defaultequid': defaultequid,
+        'default_all_branches': default_all_branches,
         'defaultquarts': defaultquarts,
         'defaultextr': defaultextr,
         'use_median_bands': use_median_bands,
@@ -497,11 +511,12 @@ def getchangestable(request):
         raise Http404()
     selectedrev = get_object_or_404(Revision, commitid=request.GET.get('rev'),
                                     branch__project=executable.project)
+    baselinerev = get_object_or_404(Revision, commitid=request.GET.get('baseline'),
+                                    branch__project=executable.project)
 
     report, created = Report.objects.get_or_create(
-        executable=executable, environment=environment, revision=selectedrev
-    )
-    tablelist = report.get_changes_table(trendconfig)
+        executable=executable, environment=environment, revision=selectedrev)
+    tablelist = report.get_changes_table(trendconfig, False, baselinerev)
 
     if not len(tablelist):
         return HttpResponse('<table id="results" class="tablesorter" '
@@ -577,25 +592,47 @@ def changes(request):
         executables[proj] = Executable.objects.filter(project=proj)
         projectlist.append(proj)
         branch = Branch.objects.filter(name=settings.DEF_BRANCH, project=proj)
-        revisionlists[proj.name] = list(Revision.objects.filter(
-            branch=branch
-        ).order_by('-date')[:revlimit])
+        revisionlists[proj.name] = list(
+            Revision.objects.filter(project=proj).order_by('-date')[:revlimit])
     # Get lastest revisions for this project and it's "default" branch
     lastrevisions = revisionlists.get(defaultexecutable.project.name)
     if not len(lastrevisions):
         return no_data_found(request)
     selectedrevision = lastrevisions[0]
+    selectedproject = selectedrevision.project
+    if len(lastrevisions) > 0:
+        # By default, the second-to-last revision is the baseline
+        baselinerevision = lastrevisions[1]
+        # The baseline should come from the DEF_BRANCH if possible
+        if baselinerevision.branch.name != settings.DEF_BRANCH:
+            for candidate in lastrevisions[2:]:
+                if candidate.branch.name == settings.DEF_BRANCH:
+                    baselinerevision = candidate
+                    break
+    else:
+        baselinerevision = lastrevisions[0]
 
     if "rev" in data:
         commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
-                commitid__startswith=commitid, branch=branch
+                commitid__startswith=commitid, project=selectedproject
             )
             if selectedrevision not in revisionlists[selectedrevision.project.name]:
                 revisionlists[selectedrevision.project.name].append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
+
+    if "baseline" in data:
+        commitid = data['baseline']
+        try:
+            try_revision = Revision.objects.get(
+                commitid__startswith=commitid, project=selectedproject
+            )
+            baselinerevision = try_revision
+        except Revision.DoesNotExist:
+            pass
+
     # This variable is used to know when the newly selected executable
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
@@ -615,6 +652,7 @@ def changes(request):
         'defaultenvironment': defaultenv,
         'defaultexecutable': defaultexecutable,
         'selectedrevision': selectedrevision,
+        'baselinerevision': baselinerevision,
         'defaulttrend': defaulttrend,
         'defaultchangethres': defaultchangethres,
         'defaulttrendthres': defaulttrendthres,

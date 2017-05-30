@@ -10,7 +10,7 @@
     {% if units.hasmin %}<th>Min</th>{% endif%}
     {% if units.hasmax %}<th>Max</th>{% endif%}
     <th title="Current change">Change</th>
-    <th title="Trend for the last {{ trendconfig }} revisions">Trend</th>
+    <th title="Baseline value">Baseline</th>
   </tr>
 </thead>
 <tfoot>
@@ -21,7 +21,7 @@
     {% endif%}{% if units.has_stddev %}<td>{{ units.totals.min }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>
     {% endif%}<td>{{ units.totals.change|percentage }}</td>
-    <td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td>
+    <td></td>
   </tr>
 </tfoot>
 <tbody>
@@ -33,7 +33,7 @@
     {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
     {% endif%}<td>{{ row.change|percentage }}</td>
-    <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
+    <td>{{ row.baseline|floatformat:units.precission }}</td>
   </tr>{% endfor %}
 </tbody>
 </table>{% endfor %}

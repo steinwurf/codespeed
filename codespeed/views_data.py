@@ -113,7 +113,7 @@ def getcomparisonexes():
     for proj in Project.objects.all():
         executables = []
         executablekeys = []
-        maxlen = 20
+        maxlen = 40
         # add all tagged revs for any project
         for exe in baselines:
             if exe['key'] is not "none" and exe['executable'].project == proj:
@@ -135,7 +135,7 @@ def getcomparisonexes():
                     if len(exestring) > maxlen:
                         exestring = str(exe)[0:maxlen] + "..."
                     name = exestring + " latest"
-                    if branch.name != 'default':
+                    if branch.name != settings.DEF_BRANCH:
                         name += " in branch '" + branch.name + "'"
                     key = str(exe.id) + "+L+" + branch.name
                     executablekeys.append(key)

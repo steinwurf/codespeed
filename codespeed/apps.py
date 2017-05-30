@@ -8,10 +8,11 @@ class CodespeedConfig(AppConfig):
     def ready(self):
         import warnings
         if settings.ALLOW_ANONYMOUS_POST:
-            warnings.warn("Results can be posted by unregistered users")
-            warnings.warn(
-                "In the future anonymous posting will be disabled by default",
-                category=FutureWarning)
+            pass
+#            warnings.warn("Results can be posted by unregistered users")
+#            warnings.warn(
+#                "In the future anonymous posting will be disabled by default",
+#                category=FutureWarning)
         elif not settings.REQUIRE_SECURE_AUTH:
             warnings.warn(
                 "REQUIRE_SECURE_AUTH is not True. This server may prompt for"

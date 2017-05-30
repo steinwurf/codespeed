@@ -335,14 +335,14 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         }
     }
 
-    plotoptions.legend = {show: true, location: 'ne'};
+    plotoptions.legend = {show: true, location: 'n', placement: 'outsideGrid'};
     plotoptions.series = series;
     plotoptions.grid = {borderColor: '#9DADC6', shadow: false, drawBorder: true};
     plotoptions.seriesDefaults.shadow = false;
     plotoptions.axesDefaults.tickOptions = {fontFamily:'Arial'};
 
     // determine conditions for rendering the legend outside the plot area
-    var offplot = false;
+    /*var offplot = false;
     if (!horizontal && series.length > 4) { offplot = true; }
     else if (horizontal && series.length > 2*ticks.length) { offplot = true; }
 
@@ -359,7 +359,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         if (w + offset > plotwidth) { w = plotwidth - offset -20; }
     } else if (!horizontal && ticks.length <= 2) {
         plotoptions.legend = {show: true, location: 'se'};
-    }
+    }*/
 
     // Set bar type
     if (chart === "stacked bars") {

@@ -55,6 +55,7 @@
 
 <div id="configbar">
   <span class="options">Results for revision <select id="revision"></select></span>
+  <span class="options">Baseline revision <select id="baseline"></select></span>
   <a id="permalink" href="#">Permalink</a>
 </div>
 <div id="content" class="clearfix">
@@ -80,6 +81,7 @@
             executable: "{{ defaultexecutable.id }}",
             environment: "{{ defaultenvironment.id }}",
             revision: "{{ selectedrevision.commitid }}",
+            baseline: "{{ baselinerevision.commitid }}",
             trend: "{{ defaulttrend }}",
             projectmatrix: eval({{ projectmatrix|safe }}),
             revisionlists: eval({{ revisionlists|safe }})

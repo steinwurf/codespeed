@@ -133,11 +133,11 @@ class Revision(models.Model):
         return self.branch.project.commit_browsing_url.format(**self.__dict__)
 
     def __str__(self):
-        if self.date is None:
-            date = None
-        else:
-            date = self.date.strftime("%b %d, %H:%M")
-        string = " - ".join(filter(None, (date, self.commitid, self.tag)))
+#        if self.date is None:
+#            date = None
+#        else:
+#            date = self.date.strftime("%b %d, %H:%M")
+        string = " - ".join(filter(None, (self.commitid, self.tag)))
         if self.branch.name != settings.DEF_BRANCH:
             string += " - " + self.branch.name
         return string
@@ -379,7 +379,7 @@ class Report(models.Model):
         lastrevisions = []
         try:
             lastrevisions = Revision.objects.filter(
-                branch=self.revision.branch
+                project=self.revision.project
             ).filter(
                 date__lte=self.revision.date
             ).order_by('-date')[:depth + 1]
@@ -389,15 +389,16 @@ class Report(models.Model):
                            exc_info=True)
         return lastrevisions
 
-    def get_changes_table(self, trend_depth=10, force_save=False):
+    def get_changes_table(self, trend_depth=10, force_save=False,
+                            baseline_revision=None):
         # Determine whether required trend value is the default one
         default_trend = 10
         if hasattr(settings, 'TREND') and settings.TREND:
             default_trend = settings.TREND
         # If the trend is the default and a forced save is not required
         # just return the cached changes table
-        if not force_save and trend_depth == default_trend:
-            return self._get_tablecache()
+#        if not force_save and trend_depth == default_trend:
+#            return self._get_tablecache()
         # Otherwise generate a new changes table
         # Get latest revisions for this branch (which also sets the project)
         lastrevisions = self.get_last_revisions(trend_depth)
@@ -407,9 +408,9 @@ class Report(models.Model):
         change_list = []
         pastrevisions = []
         if len(lastrevisions) > 1:
-            changerevision = lastrevisions[1]
+#            changerevision = lastrevisions[1]
             change_list = Result.objects.filter(
-                revision=changerevision
+                revision=baseline_revision
             ).filter(
                 environment=self.environment
             ).filter(
@@ -465,9 +466,11 @@ class Report(models.Model):
                 # Calculate percentage change relative to previous result
                 result = resobj.value
                 change = "-"
+                baseline = "-"
                 if len(change_list):
                     c = change_list.filter(benchmark=bench)
                     if c.count() and result is not None:
+                        baseline = c[0].value
                         if c[0].value != 0:
                             change = (result - c[0].value) * 100 / c[0].value
                             totals['change'].append(result / c[0].value)
@@ -520,7 +523,8 @@ class Report(models.Model):
                     'val_min': val_min,
                     'val_max': val_max,
                     'change': change,
-                    'trend': trend
+                    'trend': trend,
+                    'baseline': baseline
                 })
 
             # Compute Arithmetic averages

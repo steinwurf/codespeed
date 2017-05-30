@@ -9,6 +9,7 @@ function getConfiguration() {
     return {
         tre: $("#trend option:selected").val(),
         rev: $("#revision option:selected").val(),
+        baseline: $("#baseline option:selected").val(),
         exe: $("input[name='executable']:checked").val(),
         env: $("input[name='environment']:checked").val()
     };
@@ -45,7 +46,7 @@ function colorTable() {
             //Color change column
             $(this).children("td:eq("+index+")").addClass(getColorcode(-change, changethres, -changethres));
             //Color trend column
-            $(this).children("td:eq("+(index+1)+")").addClass(getColorcode(-trend, trendthres, -trendthres));
+            //$(this).children("td:eq("+(index+1)+")").addClass(getColorcode(-trend, trendthres, -trendthres));
         });
     });
 }
@@ -85,6 +86,7 @@ function changeRevisions() {
 
     if (selected_project !== currentproject) {
         $("#revision").html(revisionboxes[selected_project]);
+        $("#baseline").html(revisionboxes[selected_project]);
         currentproject = selected_project;
 
         //Give visual cue that the select box has changed
@@ -127,6 +129,10 @@ function init(defaults) {
     $("#revision").html(revisionboxes[defaults.project]);
     $("#revision").val(defaults.revision);
     $("#revision").change(refreshContent);
+
+    $("#baseline").html(revisionboxes[defaults.project]);
+    $("#baseline").val(defaults.baseline);
+    $("#baseline").change(refreshContent);
 
     $("#permalink").click(function() {
         window.location = "?" + $.param(getConfiguration());
