@@ -6,7 +6,10 @@ var CHANGES_URL = window.CHANGES_URL, readCheckbox = window.readCheckbox,
 
 var seriesindex = [],
     baselineColor = "#d8b83f",
-    seriesColors = ["#4bb2c5", "#EAA228", "#579575", "#953579", "#839557", "#ff5800", "#958c12", "#4b5de4", "#0085cc"],
+    //seriesColors = ["#4bb2c5", "#EAA228", "#579575", "#953579", "#839557", "#ff5800", "#958c12", "#4b5de4", "#0085cc"],
+    //seriesColors = [ "#4bb2c5", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"],
+    //seriesColors = $.jqplot.config.defaultColors,
+    seriesColors = ['#1f78b4','#a6cee3','#33a02c','#b2df8a','#e31a1c','#fb9a99','#ff7f00'],
     defaults;
 
 function setExeColors() {
