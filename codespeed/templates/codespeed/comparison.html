@@ -26,8 +26,10 @@
   </div>
 </div>
 <div id="executable" class="sidebox">
-  <div class="boxhead"><h2>Executables</h2></div>
-  <div class="boxbody">
+  <div class="boxhead">
+      <h2>Executables(<input id="hide_exes" type="checkbox"/>Hide)</h2>
+  </div>
+  <div class="boxbody" id="executable_boxbody">
     {% for proj, executable in executables.items %}
     <ul><a href="#" class="togglefold">{{ proj }}</a> <a href="#" class="checkall">(All</a>, <a href="#" class="uncheckall">None)</a>
     {% for exe in executable %}

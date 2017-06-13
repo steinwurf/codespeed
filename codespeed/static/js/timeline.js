@@ -373,7 +373,7 @@ function setValuesOfInputFields(event) {
   // Either set the default value, or the one parsed from the url
 
   // Reset all checkboxes
-  $("input:checkbox").prop('checked', false);
+  $("input:checkbox:not('#hide_exes')").prop('checked', false);
 
   $("#revisions").val(valueOrDefault(event.parameters.revs, defaults.revisions));
   $("#baseline").val(valueOrDefault(event.parameters.base, defaults.baseline));
@@ -439,6 +439,10 @@ function init(def) {
 
     $("#permalink").click(function() {
         window.location = "?" + $.param(getConfiguration());
+    });
+
+    $("#hide_exes").click(function() {
+        $("#executable_boxbody").slideToggle();
     });
 }
 

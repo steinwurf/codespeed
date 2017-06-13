@@ -426,6 +426,10 @@ function init(defaults) {
     $("#permalink").click(function() {
         window.location = "?" + $.param(getConfiguration());
     });
+
+    $("#hide_exes").click(function () {
+        $("#executable_boxbody").slideToggle();
+    });
 }
 
 return {
