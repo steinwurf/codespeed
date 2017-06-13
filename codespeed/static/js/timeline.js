@@ -91,7 +91,7 @@ function getHighlighterConfig(median) {
       show: true,
       tooltipLocation: 'nw',
       yvalues: 5,
-      formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr><tr><td>branch:</td><td>%s</td></tr></table>'
+      formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>series:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr><tr><td>branch:</td><td>%s</td></tr></table>'
     };
   }
 }

@@ -9,3 +9,14 @@ build
 dist
 codespeed.egg-info/
 
+# Visual Studio ignore
+*.bat
+*.sln
+*.suo
+*.user
+*.ncb
+*.sdf
+*.opensdf
+*.log
+VSProjects
+*.pyproj

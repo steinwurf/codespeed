@@ -280,6 +280,7 @@ def gettimelinedata(request):
             append = False
             timeline['branches'][branch] = {}
             for executable in executables:
+                exe_name = Executable.objects.get(id=executable).name
                 if data.get('all_branches', 'off') == 'on':
                     # Include data from all branches
                     resultquery = Result.objects.all()
@@ -319,19 +320,16 @@ def gettimelinedata(request):
                             [
                                 res.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, val_max, q3, q1, val_min,
-                                res.revision.get_short_commitid(),
+                                res.revision.commitid,
                                 res.revision.branch.name
                             ]
                         )
                     else:
-                        std_dev = ""
-                        if res.std_dev is not None:
-                            std_dev = res.std_dev
                         results.append(
                             [
                                 res.date.strftime('%Y/%m/%d %H:%M:%S %z'),
-                                res.value, std_dev,
-                                res.revision.get_short_commitid(),
+                                res.value, exe_name,
+                                res.revision.commitid,
                                 res.revision.branch.name
                             ]
                         )
